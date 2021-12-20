@@ -5,8 +5,7 @@ import Header from "../Header";
 
 export default function Main() {
   const [cardsData, setCardsData] = useState([]);
-  const [matchedCard, setMatchedCards] = useState([]);
-  // const [openCards, setOpenCards] = useState([]);
+  const [matchedCards, setMatchedCards] = useState([]);
 
   useEffect(() => {
     const getData = () => {
@@ -17,7 +16,7 @@ export default function Main() {
   }, []);
 
   const checkInitialCondition = (currentCardId, uniqueKey) => {
-    if (matchedCard.length === 0) {
+    if (matchedCards.length === 0) {
       setMatchedCards([
         {
           id: currentCardId,
@@ -27,7 +26,7 @@ export default function Main() {
       ]);
       return true;
     } else {
-      const isCardAlreadyPresent = matchedCard.findIndex((card) => {
+      const isCardAlreadyPresent = matchedCards.findIndex((card) => {
         return (
           card.uniqueKey === uniqueKey ||
           (card.isMatched && card.id === currentCardId)
@@ -38,7 +37,7 @@ export default function Main() {
   };
 
   const setIfCardMatched = (currentCardId, uniqueKey) => {
-    let matchedIndex = matchedCard.findIndex((card) => {
+    let matchedIndex = matchedCards.findIndex((card) => {
       if (card.id === currentCardId && card.isMatched === false) {
         return true;
       }
@@ -48,14 +47,29 @@ export default function Main() {
       setMatchedCards((prevState) => {
         const tempCards = [...prevState];
         tempCards[matchedIndex].isMatched = true;
-        return [...tempCards];
+        return [
+          ...tempCards,
+          { id: currentCardId, isMatched: true, uniqueKey },
+        ];
       });
     } else {
-      const isMatchFalse = matchedCard.findIndex((card) => !card.isMatched);
+      const isMatchFalse = matchedCards.findIndex((card) => !card.isMatched);
       if (isMatchFalse >= 0) {
+        //open the clicked card for 0.5 sec
         setMatchedCards((prevState) => [
-          ...prevState.filter((card) => card.isMatched),
+          ...prevState,
+          {
+            id: currentCardId,
+            isMatched: false,
+            uniqueKey: uniqueKey,
+          },
         ]);
+        //removing the unmatched cards
+        setTimeout(() => {
+          setMatchedCards((prevState) => [
+            ...prevState.filter((card) => card.isMatched),
+          ]);
+        }, 0.5 * 1000);
       } else {
         setMatchedCards((prevState) => [
           ...prevState,
@@ -69,6 +83,10 @@ export default function Main() {
     }
   };
 
+  const handleReset = () => {
+    setMatchedCards([]);
+  };
+
   const handleCardClick = (currentCardId, uniqueKey) => {
     console.log(currentCardId);
     if (!checkInitialCondition(currentCardId, uniqueKey)) {
@@ -78,9 +96,13 @@ export default function Main() {
 
   return (
     <>
-      <Header />
+      <Header handleResetBtnClick={handleReset} />
       <div className="container">
-        <Grid cardsData={cardsData} handleCardClick={handleCardClick} />
+        <Grid
+          cardsData={cardsData}
+          handleCardClick={handleCardClick}
+          matchedCards={matchedCards}
+        />
       </div>
     </>
   );

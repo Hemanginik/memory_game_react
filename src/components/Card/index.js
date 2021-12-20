@@ -1,6 +1,6 @@
-export default function Card({ card, handleCardClick }) {
+export default function Card({ card, handleCardClick, isOpen }) {
   const { id, url, uniqueKey } = card;
-  return (
+  const openedCard = (
     <div
       className="avatar-card"
       onClick={(e) => handleCardClick(id, uniqueKey)}
@@ -8,4 +8,15 @@ export default function Card({ card, handleCardClick }) {
       <img src={url} height="auto" width={96} alt="Avatar" />
     </div>
   );
+  const closedCard = (
+    <div
+      className="avatar-card"
+      onClick={(e) => handleCardClick(id, uniqueKey)}
+    ></div>
+  );
+  if (isOpen) {
+    return openedCard;
+  } else {
+    return closedCard;
+  }
 }
